@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Campus Virtual Mobile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        /* Animaciones para vistas */
+        .view-section { display: none; opacity: 0; transition: opacity 0.3s ease; }
+        .view-section.active { display: block; opacity: 1; }
+        /* Sidebar móvil */
+        #sidebar { transition: transform 0.3s ease-in-out; }
+        .sidebar-open { transform: translateX(0) !important; }
+    </style>
+</head>
+<body class="text-slate-800 h-screen w-screen overflow-hidden flex flex-col md:flex-row">
+
+    <!-- ========================================== -->
+    <!-- PANTALLA DE AUTENTICACIÓN                  -->
+    <!-- ========================================== -->
+    <div id="auth-screen" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 relative overflow-hidden">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-3">
+                    <i class="fa-solid fa-school"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-slate-800">Campus Virtual</h1>
+                <p class="text-slate-500 text-sm mt-1" id="auth-subtitle">Inicia sesión para continuar</p>
+            </div>
+
+            <!-- FORMULARIO LOGIN -->
+            <form id="login-form" class="space-y-4" onsubmit="handleLogin(event)">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Nombre de Usuario</label>
+                    <input type="text" id="login-username" required class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-medium" placeholder="usuario123">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Contraseña</label>
+                    <input type="password" id="login-password" required class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-medium" placeholder="••••••••">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-200 mt-2">
+                    Ingresar
+                </button>
+                <p class="text-center text-sm font-semibold text-slate-600 mt-4">
+                    ¿No tienes cuenta? <button type="button" onclick="toggleAuth('register')" class="text-blue-600">Regístrate</button>
+                </p>
+            </form>
+
+            <!-- FORMULARIO REGISTRO -->
+            <form id="register-form" class="space-y-4 hidden" onsubmit="handleRegister(event)">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Selecciona tu Rol</label>
+                    <div class="flex gap-3">
+                        <label class="flex-1 cursor-pointer">
+                            <input type="radio" name="role" value="estudiante" class="peer hidden" checked>
+                            <div class="text-center py-2.5 border-2 border-slate-200 rounded-xl peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 font-bold transition-all">
+                                Estudiante
+                            </div>
+                        </label>
+                        <label class="flex-1 cursor-pointer">
+                            <input type="radio" name="role" value="docente" class="peer hidden">
+                            <div class="text-center py-2.5 border-2 border-slate-200 rounded-xl peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 font-bold transition-all">
+                                Docente
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Nombre de Usuario</label>
+                    <input type="text" id="reg-username" required class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-medium" placeholder="Crea un usuario">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Contraseña</label>
+                    <input type="password" id="reg-password" required minlength="4" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-medium" placeholder="Mínimo 4 caracteres">
+                </div>
+                <button type="submit" class="w-full bg-slate-800 text-white font-bold py-3.5 rounded-xl shadow-lg mt-2">
+                    Crear Cuenta
+                </button>
+                <p class="text-center text-sm font-semibold text-slate-600 mt-4">
+                    ¿Ya tienes cuenta? <button type="button" onclick="toggleAuth('login')" class="text-blue-600">Inicia sesión</button>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- DASHBOARD PRINCIPAL                        -->
+    <!-- ========================================== -->
+    
+    <!-- OVERLAY MÓVIL -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-slate-900/50 z-30 hidden" onclick="toggleSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="fixed md:static inset-y-0 left-0 bg-slate-900 text-white w-72 md:w-64 flex flex-col z-40 transform -translate-x-full md:translate-x-0">
+        <div class="p-6 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-school"></i>
+                </div>
+                <div>
+                    <h2 class="font-bold text-lg leading-tight">Campus</h2>
+                    <span id="role-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-800 text-blue-200 uppercase tracking-wider">Rol</span>
+                </div>
+            </div>
+            <button class="md:hidden text-slate-400 text-2xl" onclick="toggleSidebar()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="p-6 pb-2">
+            <p class="text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">Usuario actual</p>
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold" id="user-avatar">?</div>
+                <p class="font-bold text-sm truncate" id="user-name-display">Usuario</p>
+            </div>
+        </div>
+
+        <nav class="flex-1 px-4 py-4 space-y-2" id="nav-menu">
+            <!-- Menú dinámico -->
+        </nav>
+
+        <!-- BOTÓN ROJO CERRAR SESIÓN -->
+        <div class="p-4 mt-auto border-t border-slate-800">
+            <button onclick="logout()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors">
+                <i class="fa-solid fa-power-off"></i> CERRAR SESIÓN
+            </button>
+        </div>
+    </aside>
+
+    <!-- ÁREA PRINCIPAL -->
+    <main class="flex-1 flex flex-col h-full bg-slate-100 overflow-hidden relative">
+        
+        <!-- HEADER MÓVIL -->
+        <header class="md:hidden bg-white shadow-sm px-4 py-3 flex items-center justify-between z-20">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleSidebar()" class="text-slate-600 text-2xl"><i class="fa-solid fa-bars"></i></button>
+                <h1 class="font-bold text-lg text-slate-800" id="header-title-mobile">Mis Cursos</h1>
+            </div>
+        </header>
+
+        <!-- CONTENEDOR DE VISTAS (Scrollable) -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-8">
+            <h1 class="hidden md:block text-2xl font-extrabold text-slate-800 mb-6" id="header-title-desktop">Mis Cursos</h1>
+
+            <!-- VISTA: MIS CURSOS -->
+            <div id="view-cursos" class="view-section active">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6" id="cursos-grid"></div>
+            </div>
+
+            <!-- VISTA: DETALLE CURSO (AULA) -->
+            <div id="view-detalle" class="view-section">
+                <button onclick="navigate('cursos')" class="mb-4 text-slate-500 font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-arrow-left"></i> Atrás
+                </button>
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 mb-6 flex items-center gap-4">
+                    <div id="detalle-icon" class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-xl"></div>
+                    <h2 id="detalle-titulo" class="text-xl font-bold text-slate-800">Curso</h2>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-1" id="panel-izquierdo"></div>
+                    <div class="lg:col-span-2 space-y-4" id="panel-derecho"></div>
+                </div>
+            </div>
+
+            <!-- VISTA: CALIFICACIONES -->
+            <div id="view-calificaciones" class="view-section">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" id="calificaciones-container"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- NOTIFICACIONES TOAST -->
+    <div id="toast-container" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-[60] flex flex-col gap-2 w-[90%] max-w-sm pointer-events-none"></div>
+
+    <!-- ========================================== -->
+    <!-- LÓGICA DE LA APLICACIÓN (IN-MEMORY)        -->
+    <!-- ========================================== -->
+    <script>
+        // BASE DE DATOS EN MEMORIA (Mock)
+        const DB = {
+            users: [],
+            tasks: [],
+            grades: [],
+            courses: [
+                { id: 'c1', name: 'Matemáticas', color: 'blue', icon: 'fa-calculator' },
+                { id: 'c2', name: 'Ciencias', color: 'emerald', icon: 'fa-flask' }
+            ]
+        };
+
+        const STATE = {
+            currentUser: null,
+            currentCourseId: null
+        };
+
+        // --- SISTEMA UI ---
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bg = type === 'error' ? 'bg-red-600' : 'bg-slate-800';
+            toast.className = `${bg} text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 transition-all duration-300 transform translate-y-10 opacity-0`;
+            toast.innerHTML = `<span class="text-sm font-bold w-full text-center">${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.remove('translate-y-10', 'opacity-0'); }, 10);
+            setTimeout(() => {
+                toast.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+
+        function toggleAuth(view) {
+            document.getElementById('login-form').classList.toggle('hidden', view === 'register');
+            document.getElementById('register-form').classList.toggle('hidden', view === 'login');
+            document.getElementById('auth-subtitle').innerText = view === 'register' ? 'Crea una cuenta nueva' : 'Inicia sesión para continuar';
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            sidebar.classList.toggle('sidebar-open');
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        // --- AUTENTICACIÓN ---
+        function handleRegister(e) {
+            e.preventDefault();
+            const username = document.getElementById('reg-username').value.trim().toLowerCase();
+            const pass = document.getElementById('reg-password').value;
+            const role = document.querySelector('input[name="role"]:checked').value;
+
+            if (DB.users.find(u => u.username === username)) {
+                showToast('El usuario ya existe', 'error'); return;
+            }
+
+            const newUser = { id: 'u_' + Date.now(), username, pass, role };
+            DB.users.push(newUser);
+            showToast('Cuenta creada', 'info');
+            loginUser(newUser);
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value.trim().toLowerCase();
+            const pass = document.getElementById('login-password').value;
+
+            const user = DB.users.find(u => u.username === username && u.pass === pass);
+            if (user) {
+                loginUser(user);
+            } else {
+                showToast('Usuario o contraseña incorrectos', 'error');
+            }
+        }
+
+        function loginUser(user) {
+            STATE.currentUser = user;
+            
+            // UI
+            document.getElementById('user-name-display').innerText = user.username;
+            document.getElementById('user-avatar').innerText = user.username.charAt(0).toUpperCase();
+            
+            const badge = document.getElementById('role-badge');
+            badge.innerText = user.role;
+            badge.className = user.role === 'docente' ? 'text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-800 text-emerald-200 uppercase' : 'text-[10px] font-bold px-2 py-0.5 rounded bg-blue-800 text-blue-200 uppercase';
+
+            // Menú
+            const nav = document.getElementById('nav-menu');
+            let navHTML = `<button onclick="navigate('cursos')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-left" data-target="cursos"><i class="fa-solid fa-book w-5"></i> Cursos</button>`;
+            
+            if (user.role === 'docente') {
+                navHTML += `<button onclick="navigate('calificaciones')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-left" data-target="calificaciones"><i class="fa-solid fa-table w-5"></i> Tabla de Notas</button>`;
+            } else {
+                navHTML += `<button onclick="navigate('calificaciones')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-left" data-target="calificaciones"><i class="fa-solid fa-star w-5"></i> Mis Notas</button>`;
+            }
+            nav.innerHTML = navHTML;
+
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('login-form').reset();
+            document.getElementById('register-form').reset();
+            
+            navigate('cursos');
+        }
+
+        function logout() {
+            STATE.currentUser = null;
+            document.getElementById('auth-screen').classList.remove('hidden');
+            if (document.getElementById('sidebar').classList.contains('sidebar-open')) toggleSidebar();
+        }
+
+        // --- NAVEGACIÓN ---
+        function navigate(viewId, contextId = null) {
+            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+            document.getElementById(`view-${viewId}`).classList.add('active');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (btn.dataset.target === viewId) {
+                    btn.classList.add('bg-blue-600', 'text-white');
+                    btn.classList.remove('text-slate-400');
+                } else {
+                    btn.classList.add('text-slate-400');
+                    btn.classList.remove('bg-blue-600', 'text-white');
+                }
+            });
+
+            if (viewId === 'cursos') {
+                updateHeaders('Mis Cursos');
+                renderCursos();
+            } else if (viewId === 'detalle') {
+                STATE.currentCourseId = contextId;
+                const curso = DB.courses.find(c => c.id === contextId);
+                updateHeaders('Aula');
+                document.getElementById('detalle-titulo').innerText = curso.name;
+                document.getElementById('detalle-icon').innerHTML = `<i class="fa-solid ${curso.icon}"></i>`;
+                renderPanelIzquierdo();
+                renderPanelDerecho();
+            } else if (viewId === 'calificaciones') {
+                updateHeaders(STATE.currentUser.role === 'docente' ? 'Tabla de Notas' : 'Mis Notas');
+                renderCalificaciones();
+            }
+            
+            // Cerrar sidebar en móvil si está abierto
+            if (window.innerWidth < 768 && document.getElementById('sidebar').classList.contains('sidebar-open')) {
+                toggleSidebar();
+            }
+        }
+
+        function updateHeaders(title) {
+            document.getElementById('header-title-mobile').innerText = title;
+            document.getElementById('header-title-desktop').innerText = title;
+        }
+
+        // --- RENDERIZADO CURSOS ---
+        function renderCursos() {
+            const grid = document.getElementById('cursos-grid');
+            grid.innerHTML = DB.courses.map(curso => `
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 cursor-pointer active:scale-95 transition-transform" onclick="navigate('detalle', '${curso.id}')">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-${curso.color}-100 text-${curso.color}-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid ${curso.icon}"></i>
+                        </div>
+                        <h3 class="font-bold text-lg text-slate-800">${curso.name}</h3>
+                    </div>
+                    <button class="w-full py-2 bg-slate-50 text-blue-600 font-bold rounded-lg border border-slate-200">
+                        Entrar
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function renderPanelIzquierdo() {
+            const panel = document.getElementById('panel-izquierdo');
+            if (STATE.currentUser.role === 'docente') {
+                panel.innerHTML = `
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 mb-4 lg:mb-0">
+                        <h3 class="font-bold text-slate-800 mb-3">Crear Tarea</h3>
+                        <form onsubmit="crearTarea(event)">
+                            <input type="text" id="nueva-tarea-titulo" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:border-blue-500 outline-none mb-3 font-medium text-sm" placeholder="Título...">
+                            <button type="submit" class="w-full bg-emerald-600 text-white py-2 rounded-xl font-bold shadow-md">
+                                Publicar
+                            </button>
+                        </form>
+                    </div>
+                `;
+            } else {
+                panel.innerHTML = `
+                    <div class="bg-blue-600 rounded-2xl p-5 shadow-md text-white mb-4 lg:mb-0">
+                        <h3 class="font-bold mb-1">Instrucciones</h3>
+                        <p class="text-xs text-blue-100">Resuelve las tareas de la derecha y pulsa Enviar.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderPanelDerecho() {
+            const container = document.getElementById('panel-derecho');
+            const tareas = DB.tasks.filter(t => t.courseId === STATE.currentCourseId);
+            
+            if (tareas.length === 0) {
+                container.innerHTML = `<div class="bg-white rounded-2xl p-8 text-center font-bold text-slate-400 border border-slate-200">No hay tareas.</div>`;
+                return;
+            }
+
+            if (STATE.currentUser.role === 'docente') {
+                const estudiantes = DB.users.filter(u => u.role === 'estudiante');
+                container.innerHTML = tareas.reverse().map(tarea => `
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 font-bold text-slate-800 text-sm">
+                            ${tarea.title}
+                        </div>
+                        <div class="p-4 space-y-2">
+                            ${estudiantes.length === 0 ? '<p class="text-xs font-bold text-slate-400">No hay estudiantes en el sistema.</p>' : ''}
+                            ${estudiantes.map(est => {
+                                const entrega = DB.grades.find(g => g.taskId === tarea.id && g.studentId === est.id);
+                                const nota = entrega && entrega.score !== null ? entrega.score : '';
+                                
+                                return `
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200 gap-2">
+                                    <span class="font-bold text-sm text-slate-700">${est.username}</span>
+                                    <div class="flex items-center gap-2">
+                                        <input type="number" id="nota_${tarea.id}_${est.id}" value="${nota}" class="w-16 px-2 py-1.5 border border-slate-300 rounded-lg outline-none font-bold text-center text-sm" placeholder="0-10">
+                                        <button onclick="calificarTarea('${tarea.id}', '${est.id}')" class="bg-slate-800 text-white px-3 py-1.5 rounded-lg font-bold text-sm">
+                                            ✔
+                                        </button>
+                                    </div>
+                                </div>`;
+                            }).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                // ESTUDIANTE
+                container.innerHTML = tareas.reverse().map(tarea => {
+                    const entrega = DB.grades.find(g => g.taskId === tarea.id && g.studentId === STATE.currentUser.id);
+                    const estado = entrega ? entrega.status : 'pendiente';
+                    
+                    let act = `<button onclick="entregarTarea('${tarea.id}')" class="w-full bg-blue-600 text-white py-2.5 rounded-xl font-bold mt-3">Enviar Tarea</button>`;
+                    if (estado === 'entregada') act = `<div class="mt-3 p-2 bg-amber-50 text-amber-700 rounded-xl text-xs font-bold text-center border border-amber-200">Enviada, esperando nota</div>`;
+                    if (estado === 'calificada') act = `<div class="mt-3 p-2 bg-emerald-50 text-emerald-700 rounded-xl text-sm font-bold text-center border border-emerald-200">Calificación: ${entrega.score}/10</div>`;
+
+                    return `
+                        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+                            <h4 class="font-bold text-slate-800">${tarea.title}</h4>
+                            ${act}
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // --- ACCIONES TAREAS ---
+        window.crearTarea = function(e) {
+            e.preventDefault();
+            const titulo = document.getElementById('nueva-tarea-titulo').value;
+            DB.tasks.push({ id: 't_' + Date.now(), courseId: STATE.currentCourseId, title: titulo });
+            document.getElementById('nueva-tarea-titulo').value = '';
+            showToast('Tarea publicada');
+            renderPanelDerecho();
+        };
+
+        window.entregarTarea = function(taskId) {
+            DB.grades.push({ taskId, courseId: STATE.currentCourseId, studentId: STATE.currentUser.id, status: 'entregada', score: null });
+            showToast('Tarea enviada');
+            renderPanelDerecho();
+        };
+
+        window.calificarTarea = function(taskId, studentId) {
+            const scoreVal = document.getElementById(`nota_${taskId}_${studentId}`).value;
+            if (!scoreVal) { showToast('Escribe una nota', 'error'); return; }
+            const score = parseFloat(scoreVal);
+            if (score < 0 || score > 10) { showToast('Nota 0-10', 'error'); return; }
+
+            const existing = DB.grades.find(g => g.taskId === taskId && g.studentId === studentId);
+            if (existing) {
+                existing.status = 'calificada';
+                existing.score = score;
+            } else {
+                DB.grades.push({ taskId, courseId: STATE.currentCourseId, studentId, status: 'calificada', score });
+            }
+            showToast('Nota guardada');
+        };
+
+        // --- CALIFICACIONES (MATRIZ / LISTA) ---
+        function renderCalificaciones() {
+            const container = document.getElementById('calificaciones-container');
+            
+            if (STATE.currentUser.role === 'docente') {
+                const estudiantes = DB.users.filter(u => u.role === 'estudiante');
+                if (DB.tasks.length === 0 || estudiantes.length === 0) {
+                    container.innerHTML = `<div class="p-8 text-center font-bold text-slate-400">Sin datos para matriz.</div>`;
+                    return;
+                }
+
+                let html = `
+                    <div class="p-4 border-b border-slate-200 bg-slate-50 font-bold text-sm">Matriz General</div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse min-w-[500px]">
+                            <thead class="bg-slate-100 text-slate-600 text-xs uppercase border-b border-slate-200">
+                                <tr>
+                                    <th class="p-3 sticky left-0 bg-slate-100 shadow-[1px_0_0_0_#e2e8f0]">Usuario</th>
+                                    ${DB.tasks.map(t => `<th class="p-3 text-center min-w-[100px] truncate max-w-[100px]" title="${t.title}">${t.title}</th>`).join('')}
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-sm">
+                                ${estudiantes.map(est => `
+                                    <tr>
+                                        <td class="p-3 font-bold text-slate-700 sticky left-0 bg-white shadow-[1px_0_0_0_#e2e8f0]">${est.username}</td>
+                                        ${DB.tasks.map(t => {
+                                            const g = DB.grades.find(gr => gr.taskId === t.id && gr.studentId === est.id);
+                                            const nota = (g && g.score !== null) ? g.score : '-';
+                                            const color = nota !== '-' ? (nota >= 7 ? 'text-emerald-600' : 'text-red-600') : 'text-slate-300';
+                                            return `<td class="p-3 text-center font-bold ${color}">${nota}</td>`;
+                                        }).join('')}
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>`;
+                container.innerHTML = html;
+
+            } else {
+                const misNotas = DB.grades.filter(g => g.studentId === STATE.currentUser.id && g.status === 'calificada');
+                if (misNotas.length === 0) {
+                    container.innerHTML = `<div class="p-8 text-center font-bold text-slate-400">No tienes notas aún.</div>`;
+                    return;
+                }
+
+                container.innerHTML = `
+                    <div class="divide-y divide-slate-100">
+                        ${misNotas.map(nota => {
+                            const tarea = DB.tasks.find(t => t.id === nota.taskId);
+                            const tName = tarea ? tarea.title : 'Tarea';
+                            const badge = nota.score >= 7 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700';
+                            
+                            return `
+                                <div class="p-4 flex justify-between items-center bg-white">
+                                    <h4 class="font-bold text-slate-800 text-sm">${tName}</h4>
+                                    <span class="${badge} px-3 py-1 rounded-lg font-bold text-sm">${nota.score}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
