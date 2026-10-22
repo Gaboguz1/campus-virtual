@@ -3,25 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Campus Virtual Mobile</title>
+    <title>Campus Virtual Connect</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        /* Animaciones para vistas */
         .view-section { display: none; opacity: 0; transition: opacity 0.3s ease; }
         .view-section.active { display: block; opacity: 1; }
-        /* Sidebar móvil */
         #sidebar { transition: transform 0.3s ease-in-out; }
         .sidebar-open { transform: translateX(0) !important; }
     </style>
 </head>
 <body class="text-slate-800 h-screen w-screen overflow-hidden flex flex-col md:flex-row">
 
-    <!-- ========================================== -->
-    <!-- PANTALLA DE AUTENTICACIÓN                  -->
-    <!-- ========================================== -->
+    <!-- OVERLAYS Y MODALES DE LOGIN -->
     <div id="auth-screen" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 relative overflow-hidden">
             <div class="text-center mb-8">
@@ -32,7 +28,6 @@
                 <p class="text-slate-500 text-sm mt-1" id="auth-subtitle">Inicia sesión para continuar</p>
             </div>
 
-            <!-- FORMULARIO LOGIN -->
             <form id="login-form" class="space-y-4" onsubmit="handleLogin(event)">
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-1">Nombre de Usuario</label>
@@ -42,30 +37,21 @@
                     <label class="block text-sm font-bold text-slate-700 mb-1">Contraseña</label>
                     <input type="password" id="login-password" required class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-medium" placeholder="••••••••">
                 </div>
-                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-200 mt-2">
-                    Ingresar
-                </button>
-                <p class="text-center text-sm font-semibold text-slate-600 mt-4">
-                    ¿No tienes cuenta? <button type="button" onclick="toggleAuth('register')" class="text-blue-600">Regístrate</button>
-                </p>
+                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-200 mt-2">Ingresar</button>
+                <p class="text-center text-sm font-semibold text-slate-600 mt-4">¿No tienes cuenta? <button type="button" onclick="toggleAuth('register')" class="text-blue-600">Regístrate</button></p>
             </form>
 
-            <!-- FORMULARIO REGISTRO -->
             <form id="register-form" class="space-y-4 hidden" onsubmit="handleRegister(event)">
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Selecciona tu Rol</label>
                     <div class="flex gap-3">
                         <label class="flex-1 cursor-pointer">
                             <input type="radio" name="role" value="estudiante" class="peer hidden" checked>
-                            <div class="text-center py-2.5 border-2 border-slate-200 rounded-xl peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 font-bold transition-all">
-                                Estudiante
-                            </div>
+                            <div class="text-center py-2.5 border-2 border-slate-200 rounded-xl peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 font-bold transition-all">Estudiante</div>
                         </label>
                         <label class="flex-1 cursor-pointer">
                             <input type="radio" name="role" value="docente" class="peer hidden">
-                            <div class="text-center py-2.5 border-2 border-slate-200 rounded-xl peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 font-bold transition-all">
-                                Docente
-                            </div>
+                            <div class="text-center py-2.5 border-2 border-slate-200 rounded-xl peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 font-bold transition-all">Docente</div>
                         </label>
                     </div>
                 </div>
@@ -77,30 +63,19 @@
                     <label class="block text-sm font-bold text-slate-700 mb-1">Contraseña</label>
                     <input type="password" id="reg-password" required minlength="4" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-medium" placeholder="Mínimo 4 caracteres">
                 </div>
-                <button type="submit" class="w-full bg-slate-800 text-white font-bold py-3.5 rounded-xl shadow-lg mt-2">
-                    Crear Cuenta
-                </button>
-                <p class="text-center text-sm font-semibold text-slate-600 mt-4">
-                    ¿Ya tienes cuenta? <button type="button" onclick="toggleAuth('login')" class="text-blue-600">Inicia sesión</button>
-                </p>
+                <button type="submit" class="w-full bg-slate-800 text-white font-bold py-3.5 rounded-xl shadow-lg mt-2">Crear Cuenta</button>
+                <p class="text-center text-sm font-semibold text-slate-600 mt-4">¿Ya tienes cuenta? <button type="button" onclick="toggleAuth('login')" class="text-blue-600">Inicia sesión</button></p>
             </form>
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- DASHBOARD PRINCIPAL                        -->
-    <!-- ========================================== -->
-    
-    <!-- OVERLAY MÓVIL -->
+    <!-- SIDEBAR Y DASHBOARD -->
     <div id="mobile-overlay" class="fixed inset-0 bg-slate-900/50 z-30 hidden" onclick="toggleSidebar()"></div>
 
-    <!-- SIDEBAR -->
     <aside id="sidebar" class="fixed md:static inset-y-0 left-0 bg-slate-900 text-white w-72 md:w-64 flex flex-col z-40 transform -translate-x-full md:translate-x-0">
         <div class="p-6 border-b border-slate-800 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center text-xl">
-                    <i class="fa-solid fa-school"></i>
-                </div>
+                <div class="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center text-xl"><i class="fa-solid fa-school"></i></div>
                 <div>
                     <h2 class="font-bold text-lg leading-tight">Campus</h2>
                     <span id="role-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-800 text-blue-200 uppercase tracking-wider">Rol</span>
@@ -108,7 +83,6 @@
             </div>
             <button class="md:hidden text-slate-400 text-2xl" onclick="toggleSidebar()"><i class="fa-solid fa-xmark"></i></button>
         </div>
-
         <div class="p-6 pb-2">
             <p class="text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">Usuario actual</p>
             <div class="flex items-center gap-3">
@@ -116,12 +90,7 @@
                 <p class="font-bold text-sm truncate" id="user-name-display">Usuario</p>
             </div>
         </div>
-
-        <nav class="flex-1 px-4 py-4 space-y-2" id="nav-menu">
-            <!-- Menú dinámico -->
-        </nav>
-
-        <!-- BOTÓN ROJO CERRAR SESIÓN -->
+        <nav class="flex-1 px-4 py-4 space-y-2" id="nav-menu"></nav>
         <div class="p-4 mt-auto border-t border-slate-800">
             <button onclick="logout()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors">
                 <i class="fa-solid fa-power-off"></i> CERRAR SESIÓN
@@ -129,10 +98,7 @@
         </div>
     </aside>
 
-    <!-- ÁREA PRINCIPAL -->
     <main class="flex-1 flex flex-col h-full bg-slate-100 overflow-hidden relative">
-        
-        <!-- HEADER MÓVIL -->
         <header class="md:hidden bg-white shadow-sm px-4 py-3 flex items-center justify-between z-20">
             <div class="flex items-center gap-3">
                 <button onclick="toggleSidebar()" class="text-slate-600 text-2xl"><i class="fa-solid fa-bars"></i></button>
@@ -140,20 +106,11 @@
             </div>
         </header>
 
-        <!-- CONTENEDOR DE VISTAS (Scrollable) -->
         <div class="flex-1 overflow-y-auto p-4 md:p-8">
             <h1 class="hidden md:block text-2xl font-extrabold text-slate-800 mb-6" id="header-title-desktop">Mis Cursos</h1>
-
-            <!-- VISTA: MIS CURSOS -->
-            <div id="view-cursos" class="view-section active">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6" id="cursos-grid"></div>
-            </div>
-
-            <!-- VISTA: DETALLE CURSO (AULA) -->
+            <div id="view-cursos" class="view-section active"><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6" id="cursos-grid"></div></div>
             <div id="view-detalle" class="view-section">
-                <button onclick="navigate('cursos')" class="mb-4 text-slate-500 font-bold flex items-center gap-2">
-                    <i class="fa-solid fa-arrow-left"></i> Atrás
-                </button>
+                <button onclick="navigate('cursos')" class="mb-4 text-slate-500 font-bold flex items-center gap-2"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
                 <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 mb-6 flex items-center gap-4">
                     <div id="detalle-icon" class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-xl"></div>
                     <h2 id="detalle-titulo" class="text-xl font-bold text-slate-800">Curso</h2>
@@ -163,36 +120,75 @@
                     <div class="lg:col-span-2 space-y-4" id="panel-derecho"></div>
                 </div>
             </div>
-
-            <!-- VISTA: CALIFICACIONES -->
-            <div id="view-calificaciones" class="view-section">
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" id="calificaciones-container"></div>
-            </div>
+            <div id="view-calificaciones" class="view-section"><div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" id="calificaciones-container"></div></div>
         </div>
     </main>
 
-    <!-- NOTIFICACIONES TOAST -->
     <div id="toast-container" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-[60] flex flex-col gap-2 w-[90%] max-w-sm pointer-events-none"></div>
 
     <!-- ========================================== -->
-    <!-- LÓGICA DE LA APLICACIÓN (IN-MEMORY)        -->
+    <!-- SCRIPTS DE FIREBASE Y LÓGICA DE LA APP     -->
     <!-- ========================================== -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
     <script>
-        // BASE DE DATOS EN MEMORIA (Mock)
-        const DB = {
-            users: [],
-            tasks: [],
-            grades: [],
+        // TUS LLAVES EXACTAS DE FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyBO17QXmsIh4nljaoy16-Wt6Gx-gHBxNvg",
+            authDomain: "campus-virtual-4aa04.firebaseapp.com",
+            projectId: "campus-virtual-4aa04",
+            storageBucket: "campus-virtual-4aa04.firebasestorage.app",
+            messagingSenderId: "899929989480",
+            appId: "1:899929989480:web:7fb6cbdb27f8734c40f6dd",
+            measurementId: "G-Z9T4WYHNZ5"
+        };
+
+        // Inicializar Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+
+        const STATE = { currentUser: null, currentCourseId: null };
+        let DB = { 
+            users: [], tasks: [], grades: [], 
             courses: [
                 { id: 'c1', name: 'Matemáticas', color: 'blue', icon: 'fa-calculator' },
                 { id: 'c2', name: 'Ciencias', color: 'emerald', icon: 'fa-flask' }
             ]
         };
 
-        const STATE = {
-            currentUser: null,
-            currentCourseId: null
+        // Mantener sesión al recargar y arrancar listeners de BD
+        window.onload = () => {
+            const savedSession = localStorage.getItem('campusUser');
+            if (savedSession) {
+                loginUser(JSON.parse(savedSession));
+            }
+            initRealtime();
         };
+
+        // Escuchar datos en tiempo real de Firestore
+        function initRealtime() {
+            db.collection("users").onSnapshot(snap => {
+                DB.users = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                refreshUI();
+            });
+            db.collection("tasks").orderBy("createdAt", "desc").onSnapshot(snap => {
+                DB.tasks = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                refreshUI();
+            });
+            db.collection("grades").onSnapshot(snap => {
+                DB.grades = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                refreshUI();
+            });
+        }
+
+        function refreshUI() {
+            if (!STATE.currentUser) return;
+            if (document.getElementById('view-detalle').classList.contains('active')) renderPanelDerecho();
+            if (document.getElementById('view-calificaciones').classList.contains('active')) renderCalificaciones();
+        }
 
         // --- SISTEMA UI ---
         function showToast(msg, type = 'info') {
@@ -216,38 +212,44 @@
         }
 
         function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('mobile-overlay');
-            sidebar.classList.toggle('sidebar-open');
-            sidebar.classList.toggle('-translate-x-full');
-            overlay.classList.toggle('hidden');
+            document.getElementById('sidebar').classList.toggle('sidebar-open');
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+            document.getElementById('mobile-overlay').classList.toggle('hidden');
         }
 
-        // --- AUTENTICACIÓN ---
-        function handleRegister(e) {
+        // --- AUTENTICACIÓN REAL EN FIRESTORE ---
+        async function handleRegister(e) {
             e.preventDefault();
             const username = document.getElementById('reg-username').value.trim().toLowerCase();
             const pass = document.getElementById('reg-password').value;
             const role = document.querySelector('input[name="role"]:checked').value;
 
-            if (DB.users.find(u => u.username === username)) {
-                showToast('El usuario ya existe', 'error'); return;
+            const snapshot = await db.collection("users").where("username", "==", username).get();
+            if (!snapshot.empty) {
+                showToast('El usuario ya existe', 'error'); 
+                return; 
             }
 
-            const newUser = { id: 'u_' + Date.now(), username, pass, role };
-            DB.users.push(newUser);
-            showToast('Cuenta creada', 'info');
-            loginUser(newUser);
+            const newUser = { username, pass, role };
+            try {
+                const docRef = await db.collection("users").add(newUser);
+                newUser.id = docRef.id;
+                showToast('Cuenta creada', 'info');
+                loginUser(newUser);
+            } catch (error) {
+                showToast('Error de conexión con Firebase.', 'error');
+            }
         }
 
-        function handleLogin(e) {
+        async function handleLogin(e) {
             e.preventDefault();
             const username = document.getElementById('login-username').value.trim().toLowerCase();
             const pass = document.getElementById('login-password').value;
 
-            const user = DB.users.find(u => u.username === username && u.pass === pass);
-            if (user) {
-                loginUser(user);
+            const snapshot = await db.collection("users").where("username", "==", username).where("pass", "==", pass).get();
+            if (!snapshot.empty) {
+                const doc = snapshot.docs[0];
+                loginUser({ id: doc.id, ...doc.data() });
             } else {
                 showToast('Usuario o contraseña incorrectos', 'error');
             }
@@ -255,8 +257,8 @@
 
         function loginUser(user) {
             STATE.currentUser = user;
+            localStorage.setItem('campusUser', JSON.stringify(user)); 
             
-            // UI
             document.getElementById('user-name-display').innerText = user.username;
             document.getElementById('user-avatar').innerText = user.username.charAt(0).toUpperCase();
             
@@ -264,10 +266,8 @@
             badge.innerText = user.role;
             badge.className = user.role === 'docente' ? 'text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-800 text-emerald-200 uppercase' : 'text-[10px] font-bold px-2 py-0.5 rounded bg-blue-800 text-blue-200 uppercase';
 
-            // Menú
             const nav = document.getElementById('nav-menu');
             let navHTML = `<button onclick="navigate('cursos')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-left" data-target="cursos"><i class="fa-solid fa-book w-5"></i> Cursos</button>`;
-            
             if (user.role === 'docente') {
                 navHTML += `<button onclick="navigate('calificaciones')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-left" data-target="calificaciones"><i class="fa-solid fa-table w-5"></i> Tabla de Notas</button>`;
             } else {
@@ -278,12 +278,12 @@
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('login-form').reset();
             document.getElementById('register-form').reset();
-            
             navigate('cursos');
         }
 
         function logout() {
             STATE.currentUser = null;
+            localStorage.removeItem('campusUser');
             document.getElementById('auth-screen').classList.remove('hidden');
             if (document.getElementById('sidebar').classList.contains('sidebar-open')) toggleSidebar();
         }
@@ -319,10 +319,7 @@
                 renderCalificaciones();
             }
             
-            // Cerrar sidebar en móvil si está abierto
-            if (window.innerWidth < 768 && document.getElementById('sidebar').classList.contains('sidebar-open')) {
-                toggleSidebar();
-            }
+            if (window.innerWidth < 768 && document.getElementById('sidebar').classList.contains('sidebar-open')) toggleSidebar();
         }
 
         function updateHeaders(title) {
@@ -330,20 +327,15 @@
             document.getElementById('header-title-desktop').innerText = title;
         }
 
-        // --- RENDERIZADO CURSOS ---
+        // --- RENDERIZADOS ---
         function renderCursos() {
-            const grid = document.getElementById('cursos-grid');
-            grid.innerHTML = DB.courses.map(curso => `
+            document.getElementById('cursos-grid').innerHTML = DB.courses.map(curso => `
                 <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 cursor-pointer active:scale-95 transition-transform" onclick="navigate('detalle', '${curso.id}')">
                     <div class="flex items-center gap-4 mb-4">
-                        <div class="w-12 h-12 rounded-xl bg-${curso.color}-100 text-${curso.color}-600 flex items-center justify-center text-xl">
-                            <i class="fa-solid ${curso.icon}"></i>
-                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-${curso.color}-100 text-${curso.color}-600 flex items-center justify-center text-xl"><i class="fa-solid ${curso.icon}"></i></div>
                         <h3 class="font-bold text-lg text-slate-800">${curso.name}</h3>
                     </div>
-                    <button class="w-full py-2 bg-slate-50 text-blue-600 font-bold rounded-lg border border-slate-200">
-                        Entrar
-                    </button>
+                    <button class="w-full py-2 bg-slate-50 text-blue-600 font-bold rounded-lg border border-slate-200">Entrar</button>
                 </div>
             `).join('');
         }
@@ -356,19 +348,15 @@
                         <h3 class="font-bold text-slate-800 mb-3">Crear Tarea</h3>
                         <form onsubmit="crearTarea(event)">
                             <input type="text" id="nueva-tarea-titulo" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:border-blue-500 outline-none mb-3 font-medium text-sm" placeholder="Título...">
-                            <button type="submit" class="w-full bg-emerald-600 text-white py-2 rounded-xl font-bold shadow-md">
-                                Publicar
-                            </button>
+                            <button type="submit" class="w-full bg-emerald-600 text-white py-2 rounded-xl font-bold shadow-md">Publicar</button>
                         </form>
-                    </div>
-                `;
+                    </div>`;
             } else {
                 panel.innerHTML = `
                     <div class="bg-blue-600 rounded-2xl p-5 shadow-md text-white mb-4 lg:mb-0">
                         <h3 class="font-bold mb-1">Instrucciones</h3>
                         <p class="text-xs text-blue-100">Resuelve las tareas de la derecha y pulsa Enviar.</p>
-                    </div>
-                `;
+                    </div>`;
             }
         }
 
@@ -383,94 +371,73 @@
 
             if (STATE.currentUser.role === 'docente') {
                 const estudiantes = DB.users.filter(u => u.role === 'estudiante');
-                container.innerHTML = tareas.reverse().map(tarea => `
+                container.innerHTML = tareas.map(tarea => `
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                        <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 font-bold text-slate-800 text-sm">
-                            ${tarea.title}
-                        </div>
+                        <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 font-bold text-slate-800 text-sm">${tarea.title}</div>
                         <div class="p-4 space-y-2">
-                            ${estudiantes.length === 0 ? '<p class="text-xs font-bold text-slate-400">No hay estudiantes en el sistema.</p>' : ''}
+                            ${estudiantes.length === 0 ? '<p class="text-xs font-bold text-slate-400">Esperando que se registren estudiantes...</p>' : ''}
                             ${estudiantes.map(est => {
                                 const entrega = DB.grades.find(g => g.taskId === tarea.id && g.studentId === est.id);
                                 const nota = entrega && entrega.score !== null ? entrega.score : '';
-                                
                                 return `
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200 gap-2">
                                     <span class="font-bold text-sm text-slate-700">${est.username}</span>
                                     <div class="flex items-center gap-2">
                                         <input type="number" id="nota_${tarea.id}_${est.id}" value="${nota}" class="w-16 px-2 py-1.5 border border-slate-300 rounded-lg outline-none font-bold text-center text-sm" placeholder="0-10">
-                                        <button onclick="calificarTarea('${tarea.id}', '${est.id}')" class="bg-slate-800 text-white px-3 py-1.5 rounded-lg font-bold text-sm">
-                                            ✔
-                                        </button>
+                                        <button onclick="calificarTarea('${tarea.id}', '${est.id}')" class="bg-slate-800 text-white px-3 py-1.5 rounded-lg font-bold text-sm">✔</button>
                                     </div>
                                 </div>`;
                             }).join('')}
                         </div>
-                    </div>
-                `).join('');
+                    </div>`).join('');
             } else {
-                // ESTUDIANTE
-                container.innerHTML = tareas.reverse().map(tarea => {
+                container.innerHTML = tareas.map(tarea => {
                     const entrega = DB.grades.find(g => g.taskId === tarea.id && g.studentId === STATE.currentUser.id);
                     const estado = entrega ? entrega.status : 'pendiente';
-                    
                     let act = `<button onclick="entregarTarea('${tarea.id}')" class="w-full bg-blue-600 text-white py-2.5 rounded-xl font-bold mt-3">Enviar Tarea</button>`;
                     if (estado === 'entregada') act = `<div class="mt-3 p-2 bg-amber-50 text-amber-700 rounded-xl text-xs font-bold text-center border border-amber-200">Enviada, esperando nota</div>`;
                     if (estado === 'calificada') act = `<div class="mt-3 p-2 bg-emerald-50 text-emerald-700 rounded-xl text-sm font-bold text-center border border-emerald-200">Calificación: ${entrega.score}/10</div>`;
-
-                    return `
-                        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
-                            <h4 class="font-bold text-slate-800">${tarea.title}</h4>
-                            ${act}
-                        </div>
-                    `;
+                    return `<div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200"><h4 class="font-bold text-slate-800">${tarea.title}</h4>${act}</div>`;
                 }).join('');
             }
         }
 
-        // --- ACCIONES TAREAS ---
-        window.crearTarea = function(e) {
+        // --- ACCIONES EN BASE DE DATOS NUBE ---
+        async function crearTarea(e) {
             e.preventDefault();
             const titulo = document.getElementById('nueva-tarea-titulo').value;
-            DB.tasks.push({ id: 't_' + Date.now(), courseId: STATE.currentCourseId, title: titulo });
+            await db.collection("tasks").add({ courseId: STATE.currentCourseId, title: titulo, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
             document.getElementById('nueva-tarea-titulo').value = '';
-            showToast('Tarea publicada');
-            renderPanelDerecho();
-        };
+            showToast('Tarea publicada en la nube');
+        }
 
-        window.entregarTarea = function(taskId) {
-            DB.grades.push({ taskId, courseId: STATE.currentCourseId, studentId: STATE.currentUser.id, status: 'entregada', score: null });
+        async function entregarTarea(taskId) {
+            await db.collection("grades").add({ taskId, courseId: STATE.currentCourseId, studentId: STATE.currentUser.id, status: 'entregada', score: null });
             showToast('Tarea enviada');
-            renderPanelDerecho();
-        };
+        }
 
-        window.calificarTarea = function(taskId, studentId) {
+        async function calificarTarea(taskId, studentId) {
             const scoreVal = document.getElementById(`nota_${taskId}_${studentId}`).value;
             if (!scoreVal) { showToast('Escribe una nota', 'error'); return; }
             const score = parseFloat(scoreVal);
-            if (score < 0 || score > 10) { showToast('Nota 0-10', 'error'); return; }
-
+            
             const existing = DB.grades.find(g => g.taskId === taskId && g.studentId === studentId);
             if (existing) {
-                existing.status = 'calificada';
-                existing.score = score;
+                await db.collection("grades").doc(existing.id).update({ status: 'calificada', score });
             } else {
-                DB.grades.push({ taskId, courseId: STATE.currentCourseId, studentId, status: 'calificada', score });
+                await db.collection("grades").add({ taskId, courseId: STATE.currentCourseId, studentId, status: 'calificada', score });
             }
-            showToast('Nota guardada');
-        };
+            showToast('Nota guardada en la nube');
+        }
 
-        // --- CALIFICACIONES (MATRIZ / LISTA) ---
         function renderCalificaciones() {
             const container = document.getElementById('calificaciones-container');
-            
             if (STATE.currentUser.role === 'docente') {
                 const estudiantes = DB.users.filter(u => u.role === 'estudiante');
                 if (DB.tasks.length === 0 || estudiantes.length === 0) {
-                    container.innerHTML = `<div class="p-8 text-center font-bold text-slate-400">Sin datos para matriz.</div>`;
+                    container.innerHTML = `<div class="p-8 text-center font-bold text-slate-400">Aún no hay tareas o estudiantes registrados.</div>`;
                     return;
                 }
-
                 let html = `
                     <div class="p-4 border-b border-slate-200 bg-slate-50 font-bold text-sm">Matriz General</div>
                     <div class="overflow-x-auto">
@@ -497,30 +464,17 @@
                         </table>
                     </div>`;
                 container.innerHTML = html;
-
             } else {
                 const misNotas = DB.grades.filter(g => g.studentId === STATE.currentUser.id && g.status === 'calificada');
                 if (misNotas.length === 0) {
                     container.innerHTML = `<div class="p-8 text-center font-bold text-slate-400">No tienes notas aún.</div>`;
                     return;
                 }
-
-                container.innerHTML = `
-                    <div class="divide-y divide-slate-100">
-                        ${misNotas.map(nota => {
-                            const tarea = DB.tasks.find(t => t.id === nota.taskId);
-                            const tName = tarea ? tarea.title : 'Tarea';
-                            const badge = nota.score >= 7 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700';
-                            
-                            return `
-                                <div class="p-4 flex justify-between items-center bg-white">
-                                    <h4 class="font-bold text-slate-800 text-sm">${tName}</h4>
-                                    <span class="${badge} px-3 py-1 rounded-lg font-bold text-sm">${nota.score}</span>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                `;
+                container.innerHTML = `<div class="divide-y divide-slate-100">${misNotas.map(nota => {
+                    const tarea = DB.tasks.find(t => t.id === nota.taskId);
+                    const badge = nota.score >= 7 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700';
+                    return `<div class="p-4 flex justify-between items-center bg-white"><h4 class="font-bold text-slate-800 text-sm">${tarea ? tarea.title : 'Tarea'}</h4><span class="${badge} px-3 py-1 rounded-lg font-bold text-sm">${nota.score}</span></div>`;
+                }).join('')}</div>`;
             }
         }
     </script>
